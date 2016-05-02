@@ -1,5 +1,6 @@
 # InformationRetrieval
 Project 1 - Web Crawler
+
 The	project	is	divided	into	three	main	components:	
 • Web	Crawler
 • Content	processor	and	
