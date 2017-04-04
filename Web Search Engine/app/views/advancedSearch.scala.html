@@ -1,0 +1,250 @@
+@(params:model.PropagationParams, searchResult : model.SearchResult)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Guide</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.versioned("stylesheets/aggregatecss.css")">
+
+    </head>
+    <body onclick="var x= showCoords(event)">
+        <div><h1>Travel Guide</h1>
+            </div>
+            <div style="background-color:  #6BCDED;">
+                <div class="searchbox">
+                    <br>
+                    @helper.form(action = routes.NewAdvancedSearch.search(), 'id -> "myForm1") {
+                    <input type="search"   autocomplete="on" id="searchbox" size="80" value="@params.getUserQuery()" name ="searchbox" style=" height: 30px; margin-left: 10%  "/>
+                    <input type="submit" class="btn btn-danger" value="Search" onclick = "print11()"/>
+
+
+                    <!--<img src="@routes.Assets.versioned("images/search1.png")"  width="50" height="40">-->
+                    <!--<button onclick="evaluat()" style="padding: 9px" >Search</button>-->
+                   }
+                </div>
+                <br>
+                <p style="margin-left:70%">
+                @if(session.get("email") != null)  {
+                Welcome! @session.get("email")
+                <a href="@routes.TraditionalSearch.signout()">Logout</a>
+                }
+                </p>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row affix-row">
+                <div class="col-md-2 affix-sidebar">
+                    <div class="sidebar-nav">
+                        <div class="navbar navbar-default" role="navigation">
+                            @if(params.isEnableLeftNav()){
+                                @helper.form(action = routes.NewAdvancedSearch.search(), 'id -> "myForm2") {
+                                    <input type="hidden" name="suggest" value="@params.isSuggest()">
+                                    <input type="hidden" name="searchbox" value="@params.getUserQuery()">
+                                    <ul class="nav navbar-nav" id="F">
+                                        <li class="active">
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo0" data-parent="#sidenav01" class="collapsed" style="background-color:#6BCDED">
+                                                <h4 style=" color: #004d66;">
+                                                    Advanced Options
+                                                    <br>
+                                                </h4>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo2a" data-parent="#sidenav01" class="collapsed">
+                                                <span ></span>City<span class="caret pull-right"></span>
+                                            </a>
+                                            <div class="collapse" id="toggleDemo2a" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(citySettings <- params.getLeftNavSettings().getCitySettings){
+                                                        @if(citySettings.isChecked()){
+                                                            <li class="checkbox"><label><input type="checkbox" name ="@citySettings.getCity().getCheckBoxName()" value ="@citySettings.getCity().getCheckBoxName()" checked>
+                                                        } else {
+                                                            <li class="checkbox"><label><input type="checkbox" name ="@citySettings.getCity().getCheckBoxName()" value ="@citySettings.getCity().getCheckBoxName()">
+                                                        }
+                                                            @citySettings.getCity().getSearchName()
+                                                            @if(citySettings.getCount() >0 ){
+                                                                (@citySettings.getCount())
+                                                            }
+                                                        </label>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo2" data-parent="#sidenav01" class="collapsed">
+                                                @if(params.getLeftNavSettings().getMuseumCount() >0 ){
+                                                    <span ></span>Museum(@params.getLeftNavSettings().getMuseumCount())<span class="caret pull-right"></span>
+                                                } else {
+                                                    <span ></span>Museum<span class="caret pull-right"></span>
+                                                }
+                                            </a>
+                                            <div class="collapse" id="toggleDemo2" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(museumSC1Settings <- params.getLeftNavSettings().getMuseumSCSettings()){
+                                                        @if(museumSC1Settings.isChecked()){
+                                                        <li class="checkbox"><label><input type="checkbox" name ="@museumSC1Settings.getMuseumSubCat().getCheckBoxName()" value ="@museumSC1Settings.getMuseumSubCat().getCheckBoxName()" checked>
+                                                            } else {
+                                                        <li class="checkbox"><label><input type="checkbox" name ="@museumSC1Settings.getMuseumSubCat().getCheckBoxName()" value ="@museumSC1Settings.getMuseumSubCat().getCheckBoxName()">
+                                                            }
+                                                            @museumSC1Settings.getMuseumSubCat().getSearchName()
+                                                            @if(museumSC1Settings.getCount() > 0){
+                                                                (@museumSC1Settings.getCount())
+                                                            }
+                                                        </label>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo" data-parent="#sidenav01" class="collapsed">
+                                                @if(params.getLeftNavSettings().getParkCount() >0 ){
+                                                <span ></span>Park(@params.getLeftNavSettings().getParkCount())<span class="caret pull-right"></span>
+                                                } else {
+                                                <span ></span>Park<span class="caret pull-right"></span>
+                                                }
+                                            </a>
+                                            <div class="collapse" id="toggleDemo" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(parkSC1Settings <- params.getLeftNavSettings().getParkSCSettings()){
+                                                    @if(parkSC1Settings.isChecked()){
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@parkSC1Settings.getParkSubCat().getCheckBoxName()" value ="@parkSC1Settings.getParkSubCat().getCheckBoxName()" checked>
+                                                        } else {
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@parkSC1Settings.getParkSubCat().getCheckBoxName()" value ="@parkSC1Settings.getParkSubCat().getCheckBoxName()">
+                                                        }
+                                                        @parkSC1Settings.getParkSubCat().getSearchName()
+                                                        @if(parkSC1Settings.getCount() > 0){
+                                                            (@parkSC1Settings.getCount())
+                                                        }
+                                                    </label>
+                                                        }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo3" data-parent="#sidenav01" class="collapsed">
+                                                @if(params.getLeftNavSettings().getSportAdvCount() >0 ){
+                                                <span ></span>Sports & Adventure(@params.getLeftNavSettings().getSportAdvCount())<span class="caret pull-right"></span>
+                                                } else {
+                                                <span ></span>Sports & Adventure<span class="caret pull-right"></span>
+                                                }
+                                            </a>
+                                            <div class="collapse" id="toggleDemo3" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(sportsSC1Settings <- params.getLeftNavSettings().getSportsAdvSCSettings()){
+                                                        @if(sportsSC1Settings.isChecked()){
+                                                        <li class="checkbox"><label><input type="checkbox" name ="@sportsSC1Settings.getSportsAdvSubCat().getCheckBoxName()" value ="@sportsSC1Settings.getSportsAdvSubCat().getCheckBoxName()" checked>
+                                                            } else {
+                                                        <li class="checkbox"><label><input type="checkbox" name ="@sportsSC1Settings.getSportsAdvSubCat().getCheckBoxName()" value ="@sportsSC1Settings.getSportsAdvSubCat().getCheckBoxName()">
+                                                            }
+                                                            @sportsSC1Settings.getSportsAdvSubCat().getSearchName()
+                                                            @if(sportsSC1Settings.getCount() > 0){
+                                                            (@sportsSC1Settings.getCount())
+                                                            }
+                                                        </label>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo4" data-parent="#sidenav01" class="collapsed">
+                                                @if(params.getLeftNavSettings().getWildLifeCount() >0 ){
+                                                <span ></span>Wild Life(@params.getLeftNavSettings().getWildLifeCount())<span class="caret pull-right"></span>
+                                                } else {
+                                                <span ></span>Wild Life<span class="caret pull-right"></span>
+                                                }
+                                            </a>
+                                            <div class="collapse" id="toggleDemo4" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(wildLifeSC1Settings <- params.getLeftNavSettings().getWildLifeSCSettings()){
+                                                    @if(wildLifeSC1Settings.isChecked()){
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@wildLifeSC1Settings.getWildLifeSubCat().getCheckBoxName()" value ="@wildLifeSC1Settings.getWildLifeSubCat().getCheckBoxName()" checked>
+                                                        } else {
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@wildLifeSC1Settings.getWildLifeSubCat().getCheckBoxName()" value ="@wildLifeSC1Settings.getWildLifeSubCat().getCheckBoxName()">
+                                                        }
+                                                        @wildLifeSC1Settings.getWildLifeSubCat().getSearchName()
+                                                        @if(wildLifeSC1Settings.getCount() > 0){
+                                                        (@wildLifeSC1Settings.getCount())
+                                                        }
+                                                    </label>
+                                                        }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-toggle="collapse" data-target="#toggleDemo5" data-parent="#sidenav01" class="collapsed">
+                                                <span ></span>Others<span class="caret pull-right"></span>
+                                            </a>
+                                            <div class="collapse" id="toggleDemo5" style="height: 0px;">
+                                                <ul class="nav nav-list">
+                                                    @for(othersSC1Settings <- params.getLeftNavSettings().getOthersSCSettings()){
+                                                    @if(othersSC1Settings.isChecked()){
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@othersSC1Settings.getOtherAttractions().getCheckBoxName()" value ="@othersSC1Settings.getOtherAttractions().getCheckBoxName()" checked>
+                                                        } else {
+                                                    <li class="checkbox"><label><input type="checkbox" name ="@othersSC1Settings.getOtherAttractions().getCheckBoxName()" value ="@othersSC1Settings.getOtherAttractions().getCheckBoxName()">
+                                                        }
+                                                        @othersSC1Settings.getOtherAttractions().getSearchName()
+                                                        @if(othersSC1Settings.getCount() > 0){
+                                                        (@othersSC1Settings.getCount())
+                                                        }
+                                                    </label>
+                                                        }
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <input type="submit" class="btn btn-danger" value="Filter" onclick = "print11()"/>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="well well-sm col-xs-10">
+                    <div class="margin10" >
+                        @if(searchResult.getTotalHits() != -1) {
+                        <p class="font24">Found @searchResult.getTotalHits() Results.</p>
+                        }
+
+                        @if(params.getOriginalQuery() != null){
+                        <h4>Showing Results for <b class="text-primary">@params.getUserQuery()</b></h4>
+                        <h4>Instead search for <a href="@routes.NewAdvancedSearch.search()?searchbox=@params.getOriginalQuery()&suggest=false">@params.getOriginalQuery()</a> </h4>
+                        <!--<h4><b class="text-primary">@params.getOriginalQuery()</b> got corrected to <b class="text-primary">@params.getUserQuery()</b></h4>-->
+                        }
+                    </div>
+                </div>
+                <div class="col-xs-10">
+                    @for(p <- searchResult.getPlaces()){
+                        <a href ="@p.getLiveURL()" class="linkstitle">@p.getTitle()</a>
+                        <p class="links" >@p.getLiveURL()</p>
+                        <p id="snippet" style="font-size: 13px" >@p.getSnippet()</p>
+                    }
+                </div>
+                @if(searchResult.getPaginationInfos.size >0 && searchResult.getTotalHits() >0 ) {
+                <div id='page_navigation' style="margin-left: 25%">
+                    <nav>
+                        <ul class="pagination pagination-lg">
+                            @for(pagination <- searchResult.getPaginationInfos ){
+                            @if(pagination.getPageNum() == searchResult.getCurrentPage()){
+                            <li class="active" >
+                                } else {
+                            <li>
+                                }
+                                <a href="@routes.NewAdvancedSearch.search()?searchbox=@params.getUserQuery()&page=@pagination.getPageNum()&from=@pagination.getStartFrom()&suggest=@params.isSuggest()@pagination.getUrlParams()">@pagination.getPageNum()</a>
+                            </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+                }
+            </div>
+        </div>
+
+    </body>
+
+
+</hmtl>
