@@ -1,0 +1,89 @@
+@(params:model.PropagationParams, searchResult : model.SearchResult)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Travel Guide</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+     <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.versioned("stylesheets/traditionalcss.css")">
+       <script src="@routes.Assets.versioned("javascripts/traditionaljs.js")" type="text/javascript"></script>
+
+    </head>
+    <body onclick="var x= showCoords(event)"> 
+        <div id="header1">
+            <div><h1>Travel Guide</h1>
+            </div>
+            <div style="background-color:  #6BCDED;">
+                <div class="searchbox"> 
+                    <br>
+                    @helper.form(action = routes.TraditionalSearch.search(), 'id -> "myForm1") {
+                    <input type="search"   autocomplete="on" id="searchbox" size="80" value="@params.getUserQuery()" name ="searchbox" style=" height: 30px; margin-left: 10%  "/>
+                    <input type="submit" class="btn btn-danger" value="Search" onclick = "print11()"/>
+
+                    
+                    <!--<img src="@routes.Assets.versioned("images/search1.png")"  width="50" height="40">-->
+                    <!--<button onclick="evaluat()" style="padding: 9px" >Search</button>-->
+                   }
+                </div>
+                <br>
+                <p style="margin-left:70%">
+                @if(session.get("email") != null)  {
+                Welcome! @session.get("email")  
+                <a href="@routes.TraditionalSearch.signout()">Logout</a>
+                }               
+                </p>
+            </div>
+
+
+            <div class="well well-sm">
+                <div class="margin10" >
+                    @if(searchResult.getTotalHits() != -1) {
+                        <p class="font24">Found @searchResult.getTotalHits() Results.</p>
+                    }
+
+                    @if(params.getOriginalQuery() != null){
+                        <h4>Showing Results for <b class="text-primary">@params.getUserQuery()</b></h4>
+                        <h4>Instead search for <a href="@routes.TraditionalSearch.search()?searchbox=@params.getOriginalQuery()&suggest=false">@params.getOriginalQuery()</a> </h4>
+                        <!--<h4><b class="text-primary">@params.getOriginalQuery()</b> got corrected to <b class="text-primary">@params.getUserQuery()</b></h4>-->
+                    }
+                </div>
+            </div>
+
+            </div>
+            <!--<input type='hidden' id='current_page' style="margin-left: 15%"/>  -->
+            <!--<input type='hidden' id='show_per_page' style="margin-left: 15%"/>  -->
+                @for(p <- searchResult.getPlaces()){
+                    <a href ="@p.getLiveURL()" class="linkstitle">@p.getTitle()</a>
+                    <p class="links" >@p.getLiveURL()</p>
+                    <p id="snippet" style="font-size: 13px" >@p.getSnippet()</p>
+                }
+            <!--<div id='content' > -->
+            <!--</div>-->
+            @if(searchResult.getPaginationInfos.size >0 && searchResult.getTotalHits() >0 ) {
+                <div id='page_navigation' style="margin-left: 25%">
+                    <nav>
+                      <ul class="pagination pagination-lg">
+                        @for(pagination <- searchResult.getPaginationInfos ){
+                            @if(pagination.getPageNum() == searchResult.getCurrentPage()){
+                                <li class="active" >
+                            } else {
+                                <li>
+                            }
+                            <a href="@routes.TraditionalSearch.search()?searchbox=@params.getUserQuery()&page=@pagination.getPageNum()&from=@pagination.getStartFrom()&suggest=@params.isSuggest()">@pagination.getPageNum()</a>
+                            </li>
+                         }
+                      </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+       
+  
+    </body>
+</html>
